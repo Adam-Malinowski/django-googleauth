@@ -96,6 +96,9 @@ Optional settings::
     # list of default group names to assign to new users
     GOOGLEAUTH_GROUPS = []
 
+    # when creating username from email convert to lowercase and strip non alpha characters, default False
+    GOOGLEAUTH_APPS_CLEAN_USERNAME = True
+
 URL routes
 ~~~~~~~~~~
 

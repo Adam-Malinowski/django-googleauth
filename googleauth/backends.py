@@ -5,6 +5,7 @@ from django.contrib.auth.models import User, Group
 IS_STAFF = getattr(settings, 'GOOGLEAUTH_IS_STAFF', False)
 GROUPS = getattr(settings, 'GOOGLEAUTH_GROUPS', tuple())
 APPS_DOMAIN = getattr(settings, 'GOOGLEAUTH_APPS_DOMAIN', None)
+CLEAN_USERNAME = getattr(settings, 'GOOGLEAUTH_APPS_CLEAN_USERNAME', False)
 
 
 class GoogleAuthBackend(object):
@@ -13,6 +14,9 @@ class GoogleAuthBackend(object):
 
         email = attributes.get('email', None)
         (username, domain) = email.split('@')
+
+        if CLEAN_USERNAME:
+            username = filter(str.isalpha, username.lower())
 
         if APPS_DOMAIN and APPS_DOMAIN != domain:
             return None
