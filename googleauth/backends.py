@@ -16,7 +16,7 @@ class GoogleAuthBackend(object):
         (username, domain) = email.split('@')
 
         if CLEAN_USERNAME:
-            username = filter(str.isalpha, username.lower())
+            username = filter(str.isalpha, str(username).lower())
 
         if APPS_DOMAIN and APPS_DOMAIN != domain:
             return None
