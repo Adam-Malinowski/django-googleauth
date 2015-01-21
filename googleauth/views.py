@@ -19,6 +19,9 @@ CLIENT_SECRET = getattr(settings, 'GOOGLEAUTH_CLIENT_SECRET', None)
 CALLBACK_DOMAIN = getattr(settings, 'GOOGLEAUTH_CALLBACK_DOMAIN', None)
 APPS_DOMAIN = getattr(settings, 'GOOGLEAUTH_APPS_DOMAIN', None)
 GET_PROFILE = getattr(settings, 'GOOGLEAUTH_GET_PROFILE', True)
+USERPROFILE_MODEL = getattr(settings, 'GOOGLEAUTH_USERPROFILE_MODEL', None)
+PROFILE_FIELDS = getattr(settings, 'GOOGLEAUTH_PROFILE_FIELDS', None)
+
 
 #
 # utility methods
@@ -104,9 +107,12 @@ def callback(request):
 
             profile = resp.json()
 
+            if USERPROFILE_MODEL and PROFILE_FIELDS:
+                for google_field in PROFILE_FIELDS.iterkeys():
+                    attributes[google_field] = profile.get(google_field, None)
+
             attributes['first_name'] = profile.get('given_name')
             attributes['last_name'] = profile.get('family_name')
-
 
     # authenticate user
 

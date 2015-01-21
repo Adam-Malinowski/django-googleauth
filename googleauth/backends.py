@@ -1,11 +1,15 @@
-import requests
+# import requests
+
 from django.conf import settings
+from django.db.models import get_model
 from django.contrib.auth.models import User, Group
 
 IS_STAFF = getattr(settings, 'GOOGLEAUTH_IS_STAFF', False)
 GROUPS = getattr(settings, 'GOOGLEAUTH_GROUPS', tuple())
 APPS_DOMAIN = getattr(settings, 'GOOGLEAUTH_APPS_DOMAIN', None)
 CLEAN_USERNAME = getattr(settings, 'GOOGLEAUTH_APPS_CLEAN_USERNAME', False)
+USERPROFILE_MODEL = getattr(settings, 'GOOGLEAUTH_USERPROFILE_MODEL', None)
+PROFILE_FIELDS = getattr(settings, 'GOOGLEAUTH_PROFILE_FIELDS', None)
 
 
 class GoogleAuthBackend(object):
@@ -48,6 +52,15 @@ class GoogleAuthBackend(object):
 
             user.save()
 
+        if USERPROFILE_MODEL and PROFILE_FIELDS:
+            model_details = USERPROFILE_MODEL.rsplit('.', 1)
+
+            model = get_model(model_details[0], model_details[1])
+            try:
+                model.objects.get(user=user)
+            except model.DoesNotExist:
+                self.save_user_profile(model, user, attributes)
+
         return user
 
     def get_user(self, user_id):
@@ -55,3 +68,12 @@ class GoogleAuthBackend(object):
             return User.objects.get(pk=user_id)
         except User.DoesNotExist:
             pass
+
+    def save_user_profile(self, model, user, attributes):
+
+        to_save = {'user': user}
+        for google_field, profile_field in PROFILE_FIELDS.iteritems():
+            to_save[profile_field] = attributes.get(google_field, None)
+
+        userprofile = model(**to_save)
+        userprofile.save()
