@@ -63,7 +63,7 @@ class GoogleAuthBackend(object):
                 model.objects.get(user=user)
             except model.DoesNotExist:
                 self.save_user_profile(model, user, attributes)
-        logger.info('backend auth in %s' % (time.time() - start = time.time()))
+        logger.info('backend auth in %s' % (time.time() - start))
         return user
 
     def get_user(self, user_id):
