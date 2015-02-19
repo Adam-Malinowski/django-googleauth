@@ -1,4 +1,5 @@
-# import requests
+import logging
+import time
 
 from django.conf import settings
 from django.db.models import get_model
@@ -11,11 +12,13 @@ CLEAN_USERNAME = getattr(settings, 'GOOGLEAUTH_APPS_CLEAN_USERNAME', False)
 USERPROFILE_MODEL = getattr(settings, 'GOOGLEAUTH_USERPROFILE_MODEL', None)
 PROFILE_FIELDS = getattr(settings, 'GOOGLEAUTH_PROFILE_FIELDS', None)
 
+logger = logging.getLogger(__name__)
+
 
 class GoogleAuthBackend(object):
 
     def authenticate(self, identifier=None, attributes=None):
-
+        start = time.time()
         email = attributes.get('email', None)
         (username, domain) = email.split('@')
 
@@ -60,7 +63,7 @@ class GoogleAuthBackend(object):
                 model.objects.get(user=user)
             except model.DoesNotExist:
                 self.save_user_profile(model, user, attributes)
-
+        logger.info('backend auth in %s' % (time.time() - start = time.time()))
         return user
 
     def get_user(self, user_id):
@@ -70,10 +73,11 @@ class GoogleAuthBackend(object):
             pass
 
     def save_user_profile(self, model, user, attributes):
-
+        start = time.time()
         to_save = {'user': user}
         for google_field, profile_field in PROFILE_FIELDS.iteritems():
             to_save[profile_field] = attributes.get(google_field, None)
 
         userprofile = model(**to_save)
         userprofile.save()
+        logger.info('backend save in %s' % (time.time() - start = time.time())) 
