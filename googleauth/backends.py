@@ -80,4 +80,4 @@ class GoogleAuthBackend(object):
 
         userprofile = model(**to_save)
         userprofile.save()
-        logger.info('backend save in %s' % (time.time() - start = time.time())) 
+        logger.info('backend save in %s' % (time.time() - start)) 
